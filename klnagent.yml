@@ -1,0 +1,23 @@
+- hosts: KLNAGENT
+  
+  become:
+    true
+
+  become_method:
+    su
+
+  become_user:
+    root
+
+  remote_user:
+    user
+
+  vars:
+    ansible_become_pass: "!Okb1799"
+    source_file: /etc/ansible/roles/klnagent/templates/answers.txt
+    source_script: /etc/ansible/roles/klnagent/templates/nagent_inst.sh
+    destin_path: /tmp/nagent_install
+ 
+  roles:
+    - klnagent
+

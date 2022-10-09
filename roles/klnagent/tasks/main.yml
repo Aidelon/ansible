@@ -1,0 +1,42 @@
+- name: chek status klnagent
+  shell: /opt/kaspersky/klnagent64/bin/klnagchk
+  register: status
+  ignore_errors: True
+
+- debug:
+    var: status.stdout_lines
+
+
+- block: #=========ROSA============
+
+    - block: #======check status connect to server=============
+
+             - name: MakeDir /tmp/nagent_install
+               file: path=/tmp/nagent_install state=directory
+
+             - name: copy file answers.txt on users'PC
+               copy: src={{ source_file }} dest={{ destin_path }}
+
+             - name: copy script nagent_istall.sh to users'PC
+               copy: src={{ source_script }} dest={{ destin_path }} mode=0755
+
+             - name: Setting the value of the KLAUTOANSWERS environment variable
+               shell: echo KLAUTOANSWERS is $KLAUTOANSWERS
+               environment:
+                 KLAUTOANSWERS: /tmp/nagent_install/answers.txt
+               register: shellout
+
+             - debug:
+                 var: shellout
+
+             - name: Execute the script nagent_istall.sh
+               shell: /tmp/nagent_install/nagent_inst.sh
+
+             - name: Restart Kaspersky Network Agent
+               shell: /opt/kaspersky/klnagent64/bin/klnagchk -restart
+               ignore_errors: True
+
+      when: "'Connecting to server...OK' not in status.stdout_lines"
+
+  when: ansible_os_family == "ROSA"
+
